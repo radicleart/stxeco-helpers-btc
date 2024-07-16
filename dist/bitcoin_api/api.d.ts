@@ -8,6 +8,7 @@ export declare function fetchCurrentFeeRates(mempoolUrl: string, blockCypherUrl:
 }>;
 export declare function sendRawTxDirectBlockCypher(blockCypherUrl: string, hex: string): Promise<any>;
 export declare function fetchBitcoinTipHeight(mempoolUrl: string): Promise<string | undefined>;
+export declare function fetchBlockAtHeight(mempoolUrl: string, height: number): Promise<any>;
 export declare function fetchTransactionHex(mempoolUrl: string, txid: string): Promise<string | undefined>;
 export declare function fetchTransaction(mempoolUrl: string, txid: string): Promise<any>;
 export declare function fetchAddress(mempoolUrl: string, address: string): Promise<AddressMempoolObject>;

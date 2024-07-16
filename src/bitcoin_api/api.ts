@@ -53,6 +53,20 @@ export async function fetchBitcoinTipHeight(mempoolUrl:string) {
   }
 }
 
+export async function fetchBlockAtHeight(mempoolUrl:string, height:number) {
+  try {
+    let url = `${mempoolUrl}/block-height/${height}`;
+    let response = await fetch(url);
+    const blockHash = await response.text();
+    url = `${mempoolUrl}/block/${blockHash}`;
+    response = await fetch(url);
+    const block = await response.json();
+    return block;
+  } catch (error) {
+    console.error("Error fetching block timestamp:", error);
+  }
+}
+
 export async function fetchTransactionHex(mempoolUrl:string, txid:string) {
   try {
     //https://api.blockcypher.com/v1/btc/test3/txs/<txID here>?includeHex=true

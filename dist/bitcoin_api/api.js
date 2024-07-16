@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.fetchCurrentFeeRates = fetchCurrentFeeRates;
 exports.sendRawTxDirectBlockCypher = sendRawTxDirectBlockCypher;
 exports.fetchBitcoinTipHeight = fetchBitcoinTipHeight;
+exports.fetchBlockAtHeight = fetchBlockAtHeight;
 exports.fetchTransactionHex = fetchTransactionHex;
 exports.fetchTransaction = fetchTransaction;
 exports.fetchAddress = fetchAddress;
@@ -79,6 +80,22 @@ function fetchBitcoinTipHeight(mempoolUrl) {
         catch (err) {
             console.log(err);
             return;
+        }
+    });
+}
+function fetchBlockAtHeight(mempoolUrl, height) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            let url = `${mempoolUrl}/block-height/${height}`;
+            let response = yield fetch(url);
+            const blockHash = yield response.text();
+            url = `${mempoolUrl}/block/${blockHash}`;
+            response = yield fetch(url);
+            const block = yield response.json();
+            return block;
+        }
+        catch (error) {
+            console.error("Error fetching block timestamp:", error);
         }
     });
 }
