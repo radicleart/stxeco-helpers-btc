@@ -28,16 +28,16 @@ exports.getHashBytesFromAddress = getHashBytesFromAddress;
 const btc = __importStar(require("@scure/btc-signer"));
 const base_1 = require("@scure/base");
 function getVersionAsType(version) {
-    if (version === '0x00')
-        return 'pkh';
-    else if (version === '0x01')
-        return 'sh';
-    else if (version === '0x04')
-        return 'wpkh';
-    else if (version === '0x05')
-        return 'wsh';
-    else if (version === '0x06')
-        return 'tr';
+    if (version === "0x00")
+        return "pkh";
+    else if (version === "0x01")
+        return "sh";
+    else if (version === "0x04")
+        return "wpkh";
+    else if (version === "0x05")
+        return "wsh";
+    else if (version === "0x06")
+        return "tr";
 }
 const ADDRESS_VERSION_P2PKH = new Uint8Array([0]);
 const ADDRESS_VERSION_P2SH = new Uint8Array([1]);
@@ -47,25 +47,25 @@ const ADDRESS_VERSION_NATIVE_P2WPKH = new Uint8Array([4]);
 const ADDRESS_VERSION_NATIVE_P2WSH = new Uint8Array([5]);
 const ADDRESS_VERSION_NATIVE_P2TR = new Uint8Array([6]);
 function getAddressFromHashBytes(netowrk, hashBytes, version) {
-    const net = (netowrk === 'testnet') ? btc.TEST_NETWORK : btc.NETWORK;
-    if (!version.startsWith('0x'))
-        version = '0x' + version;
-    if (!hashBytes.startsWith('0x'))
-        hashBytes = '0x' + hashBytes;
+    const net = netowrk === "testnet" ? btc.TEST_NETWORK : btc.NETWORK;
+    if (!version.startsWith("0x"))
+        version = "0x" + version;
+    if (!hashBytes.startsWith("0x"))
+        hashBytes = "0x" + hashBytes;
     let btcAddr;
     try {
         const txType = getVersionAsType(version);
         let outType;
-        if (txType === 'tr') {
+        if (txType === "tr") {
             outType = {
                 type: getVersionAsType(version),
-                pubkey: base_1.hex.decode(hashBytes.split('x')[1])
+                pubkey: base_1.hex.decode(hashBytes.split("x")[1]),
             };
         }
         else {
             outType = {
                 type: getVersionAsType(version),
-                hash: base_1.hex.decode(hashBytes.split('x')[1])
+                hash: base_1.hex.decode(hashBytes.split("x")[1]),
             };
         }
         const addr = btc.Address(net);
@@ -74,12 +74,12 @@ function getAddressFromHashBytes(netowrk, hashBytes, version) {
     }
     catch (err) {
         btcAddr = err.message;
-        console.error('getAddressFromHashBytes: version:hashBytes: ' + version + ':' + hashBytes);
+        console.error("getAddressFromHashBytes: version:hashBytes: " + version + ":" + hashBytes);
     }
     return btcAddr;
 }
 function getHashBytesFromAddress(netowrk, address) {
-    const net = (netowrk === 'testnet') ? btc.TEST_NETWORK : btc.NETWORK;
+    const net = netowrk === "testnet" ? btc.TEST_NETWORK : btc.NETWORK;
     let outScript;
     try {
         const addr = btc.Address(net);
@@ -90,24 +90,39 @@ function getHashBytesFromAddress(netowrk, address) {
             return;
         }
         else if (outScript.type === "pkh") {
-            return { version: base_1.hex.encode(ADDRESS_VERSION_P2PKH), hashBytes: base_1.hex.encode(outScript.hash) };
+            return {
+                version: base_1.hex.encode(ADDRESS_VERSION_P2PKH),
+                hashBytes: base_1.hex.encode(outScript.hash),
+            };
         }
         else if (outScript.type === "sh") {
-            return { version: base_1.hex.encode(ADDRESS_VERSION_P2SH), hashBytes: base_1.hex.encode(outScript.hash) };
+            return {
+                version: base_1.hex.encode(ADDRESS_VERSION_P2SH),
+                hashBytes: base_1.hex.encode(outScript.hash),
+            };
         }
         else if (outScript.type === "wpkh") {
-            return { version: base_1.hex.encode(ADDRESS_VERSION_NATIVE_P2WPKH), hashBytes: base_1.hex.encode(outScript.hash) };
+            return {
+                version: base_1.hex.encode(ADDRESS_VERSION_NATIVE_P2WPKH),
+                hashBytes: base_1.hex.encode(outScript.hash),
+            };
         }
         else if (outScript.type === "wsh") {
-            return { version: base_1.hex.encode(ADDRESS_VERSION_NATIVE_P2WSH), hashBytes: base_1.hex.encode(outScript.hash) };
+            return {
+                version: base_1.hex.encode(ADDRESS_VERSION_NATIVE_P2WSH),
+                hashBytes: base_1.hex.encode(outScript.hash),
+            };
         }
         else if (outScript.type === "tr") {
-            return { version: base_1.hex.encode(ADDRESS_VERSION_NATIVE_P2TR), hashBytes: base_1.hex.encode(outScript.pubkey) };
+            return {
+                version: base_1.hex.encode(ADDRESS_VERSION_NATIVE_P2TR),
+                hashBytes: base_1.hex.encode(outScript.pubkey),
+            };
         }
         return;
     }
     catch (err) {
-        console.error('getPartialStackedByCycle: ' + outScript);
+        console.error("getPartialStackedByCycle: " + outScript);
     }
     return;
 }
