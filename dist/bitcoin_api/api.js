@@ -23,46 +23,21 @@ exports.fetchAddressTransactions = fetchAddressTransactions;
 exports.fetchAddressTransactionsMin = fetchAddressTransactionsMin;
 exports.fetchUtxosForAddress = fetchUtxosForAddress;
 exports.fetchUTXOs = fetchUTXOs;
+exports.fetchUtxoSet = fetchUtxoSet;
 exports.readTx = readTx;
 exports.sendRawTxDirectMempool = sendRawTxDirectMempool;
-function fetchCurrentFeeRates(mempoolUrl, blockCypherUrl, network) {
+function fetchCurrentFeeRates(mempoolUrl) {
     return __awaiter(this, void 0, void 0, function* () {
-        try {
-            if (network === "devnet") {
-                const url = mempoolUrl + "/v1/mining/blocks/fee-rates/1m";
-                const response = yield fetch(url);
-                const info = yield response.json();
-                return {
-                    feeInfo: {
-                        low_fee_per_kb: info[0].avgFee_100,
-                        medium_fee_per_kb: info[1].avgFee_100,
-                        high_fee_per_kb: info[2].avgFee_100,
-                    },
-                };
-            }
-            else {
-                const url = blockCypherUrl;
-                const response = yield fetch(url);
-                const info = yield response.json();
-                return {
-                    feeInfo: {
-                        low_fee_per_kb: info.low_fee_per_kb,
-                        medium_fee_per_kb: info.medium_fee_per_kb,
-                        high_fee_per_kb: info.high_fee_per_kb,
-                    },
-                };
-            }
-        }
-        catch (err) {
-            console.log("fetchCurrentFeeRates: " + err.message);
-            return {
-                feeInfo: {
-                    low_fee_per_kb: 2000,
-                    medium_fee_per_kb: 3000,
-                    high_fee_per_kb: 4000,
-                },
-            };
-        }
+        const url = mempoolUrl + "/v1/fees/recommended";
+        const response = yield fetch(url);
+        const info = yield response.json();
+        return {
+            feeInfo: {
+                low_fee_per_kb: info.economyFee * 1000,
+                medium_fee_per_kb: info.hourFee * 1000,
+                high_fee_per_kb: info.fastestFee * 1000,
+            },
+        };
     });
 }
 function sendRawTxDirectBlockCypher(blockCypherUrl, hex) {
@@ -270,6 +245,26 @@ function fetchUTXOs(mempoolUrl, address) {
             console.log(err);
             return;
         }
+    });
+}
+function fetchUtxoSet(mempoolUrl, address, verbose) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let result = {};
+        try {
+            const utxos = yield fetchUTXOs(mempoolUrl, address);
+            for (let utxo of utxos) {
+                const res = yield fetchTransaction(mempoolUrl, utxo.txid);
+                if (verbose)
+                    res.hex = yield fetchTransactionHex(mempoolUrl, utxo.txid);
+                utxo.tx = res;
+            }
+            result.utxos = utxos;
+        }
+        catch (err) {
+            console.error("fetchUtxoSet: fetchUTXOs: " + address + " : " + err.message);
+            // carry on
+        }
+        return result;
     });
 }
 function readTx(mempoolUrl, txid) {

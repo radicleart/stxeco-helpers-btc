@@ -1,44 +1,16 @@
 import { AddressMempoolObject } from "../bitcoin_types";
 
-export async function fetchCurrentFeeRates(
-  mempoolUrl: string,
-  blockCypherUrl: string,
-  network: string
-) {
-  try {
-    if (network === "devnet") {
-      const url = mempoolUrl + "/v1/mining/blocks/fee-rates/1m";
-      const response = await fetch(url);
-      const info = await response.json();
-      return {
-        feeInfo: {
-          low_fee_per_kb: info[0].avgFee_100,
-          medium_fee_per_kb: info[1].avgFee_100,
-          high_fee_per_kb: info[2].avgFee_100,
-        },
-      };
-    } else {
-      const url = blockCypherUrl;
-      const response = await fetch(url);
-      const info = await response.json();
-      return {
-        feeInfo: {
-          low_fee_per_kb: info.low_fee_per_kb,
-          medium_fee_per_kb: info.medium_fee_per_kb,
-          high_fee_per_kb: info.high_fee_per_kb,
-        },
-      };
-    }
-  } catch (err: any) {
-    console.log("fetchCurrentFeeRates: " + err.message);
-    return {
-      feeInfo: {
-        low_fee_per_kb: 2000,
-        medium_fee_per_kb: 3000,
-        high_fee_per_kb: 4000,
-      },
-    };
-  }
+export async function fetchCurrentFeeRates(mempoolUrl: string) {
+  const url = mempoolUrl + "/v1/fees/recommended";
+  const response = await fetch(url);
+  const info = await response.json();
+  return {
+    feeInfo: {
+      low_fee_per_kb: info.economyFee * 1000,
+      medium_fee_per_kb: info.hourFee * 1000,
+      high_fee_per_kb: info.fastestFee * 1000,
+    },
+  };
 }
 
 export async function sendRawTxDirectBlockCypher(
@@ -250,6 +222,27 @@ export async function fetchUTXOs(mempoolUrl: string, address: string) {
     console.log(err);
     return;
   }
+}
+
+export async function fetchUtxoSet(
+  mempoolUrl: string,
+  address: string,
+  verbose: boolean
+): Promise<any> {
+  let result: any = {};
+  try {
+    const utxos = await fetchUTXOs(mempoolUrl, address);
+    for (let utxo of utxos) {
+      const res = await fetchTransaction(mempoolUrl, utxo.txid);
+      if (verbose) res.hex = await fetchTransactionHex(mempoolUrl, utxo.txid);
+      utxo.tx = res;
+    }
+    result.utxos = utxos;
+  } catch (err: any) {
+    console.error("fetchUtxoSet: fetchUTXOs: " + address + " : " + err.message);
+    // carry on
+  }
+  return result;
 }
 
 export async function readTx(mempoolUrl: string, txid: string) {

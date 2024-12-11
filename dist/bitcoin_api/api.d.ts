@@ -1,9 +1,9 @@
 import { AddressMempoolObject } from "../bitcoin_types";
-export declare function fetchCurrentFeeRates(mempoolUrl: string, blockCypherUrl: string, network: string): Promise<{
+export declare function fetchCurrentFeeRates(mempoolUrl: string): Promise<{
     feeInfo: {
-        low_fee_per_kb: any;
-        medium_fee_per_kb: any;
-        high_fee_per_kb: any;
+        low_fee_per_kb: number;
+        medium_fee_per_kb: number;
+        high_fee_per_kb: number;
     };
 }>;
 export declare function sendRawTxDirectBlockCypher(blockCypherUrl: string, hex: string): Promise<any>;
@@ -19,5 +19,6 @@ export declare function fetchAddressTransactions(mempoolUrl: string, address: st
 export declare function fetchAddressTransactionsMin(mempoolUrl: string, address: string): Promise<any>;
 export declare function fetchUtxosForAddress(electrumUrl: string, address: string): Promise<any>;
 export declare function fetchUTXOs(mempoolUrl: string, address: string): Promise<any>;
+export declare function fetchUtxoSet(mempoolUrl: string, address: string, verbose: boolean): Promise<any>;
 export declare function readTx(mempoolUrl: string, txid: string): Promise<any>;
 export declare function sendRawTxDirectMempool(mempoolUrl: string, hex: string): Promise<any>;
